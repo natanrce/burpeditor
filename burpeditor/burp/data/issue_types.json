@@ -1,0 +1,726 @@
+{
+"1048832": {
+"name": "OS command injection",
+"severity": "HIGH"
+},
+"1049088": {
+"name": "SQL injection",
+"severity": "HIGH"
+},
+"1049104": {
+"name": "SQL injection (second order)",
+"severity": "HIGH"
+},
+"1049216": {
+"name": "ASP.NET tracing enabled",
+"severity": "HIGH"
+},
+"1049344": {
+"name": "File path traversal",
+"severity": "HIGH"
+},
+"1049600": {
+"name": "XML external entity injection",
+"severity": "HIGH"
+},
+"1049856": {
+"name": "LDAP injection",
+"severity": "HIGH"
+},
+"1050112": {
+"name": "XPath injection",
+"severity": "HIGH"
+},
+"1050368": {
+"name": "XML injection",
+"severity": "MEDIUM"
+},
+"1050624": {
+"name": "ASP.NET debugging enabled",
+"severity": "MEDIUM"
+},
+"1050704": {
+"name": "Broken access control",
+"severity": "INFO"
+},
+"1050880": {
+"name": "HTTP PUT method is enabled",
+"severity": "HIGH"
+},
+"1051136": {
+"name": "Out-of-band resource load (HTTP)",
+"severity": "HIGH"
+},
+"1051392": {
+"name": "File path manipulation",
+"severity": "HIGH"
+},
+"1051648": {
+"name": "PHP code injection",
+"severity": "HIGH"
+},
+"1051904": {
+"name": "Server-side JavaScript code injection",
+"severity": "HIGH"
+},
+"1052160": {
+"name": "React Server Components remote code execution (React2Shell)",
+"severity": "HIGH"
+},
+"1052416": {
+"name": "Ruby code injection",
+"severity": "HIGH"
+},
+"1052432": {
+"name": "Python code injection",
+"severity": "HIGH"
+},
+"1052448": {
+"name": "Expression Language injection",
+"severity": "HIGH"
+},
+"1052672": {
+"name": "Unidentified code injection",
+"severity": "HIGH"
+},
+"1052800": {
+"name": "Server-side template injection",
+"severity": "HIGH"
+},
+"1052928": {
+"name": "SSI injection",
+"severity": "HIGH"
+},
+"134217728": {
+"name": "Extension generated issue",
+"severity": "INFO"
+},
+"134250496": {
+"name": "Manually generated issue",
+"severity": "INFO"
+},
+"150994944": {
+"name": "Bambda generated issue",
+"severity": "INFO"
+},
+"16777472": {
+"name": "TLS certificate",
+"severity": "MEDIUM"
+},
+"16777728": {
+"name": "Unencrypted communications",
+"severity": "LOW"
+},
+"16777984": {
+"name": "Strict transport security not enforced",
+"severity": "LOW"
+},
+"16778240": {
+"name": "Mixed content",
+"severity": "INFO"
+},
+"16778496": {
+"name": "Hidden HTTP 2",
+"severity": "INFO"
+},
+"2097408": {
+"name": "Cross-site scripting (stored)",
+"severity": "HIGH"
+},
+"2097472": {
+"name": "HTTP request smuggling",
+"severity": "HIGH"
+},
+"2097473": {
+"name": "Client-side desync",
+"severity": "HIGH"
+},
+"2097536": {
+"name": "Web cache poisoning",
+"severity": "HIGH"
+},
+"2097664": {
+"name": "HTTP response header injection",
+"severity": "HIGH"
+},
+"2097920": {
+"name": "Cross-site scripting (reflected)",
+"severity": "HIGH"
+},
+"2097928": {
+"name": "Client-side template injection",
+"severity": "HIGH"
+},
+"2097936": {
+"name": "Cross-site scripting (DOM-based)",
+"severity": "HIGH"
+},
+"2097937": {
+"name": "Cross-site scripting (reflected DOM-based)",
+"severity": "HIGH"
+},
+"2097938": {
+"name": "Cross-site scripting (stored DOM-based)",
+"severity": "HIGH"
+},
+"2097942": {
+"name": "Client-side prototype pollution",
+"severity": "INFO"
+},
+"2097952": {
+"name": "JavaScript injection (DOM-based)",
+"severity": "HIGH"
+},
+"2097953": {
+"name": "JavaScript injection (reflected DOM-based)",
+"severity": "HIGH"
+},
+"2097954": {
+"name": "JavaScript injection (stored DOM-based)",
+"severity": "HIGH"
+},
+"2097960": {
+"name": "Path-relative style sheet import",
+"severity": "INFO"
+},
+"2097968": {
+"name": "Client-side SQL injection (DOM-based)",
+"severity": "HIGH"
+},
+"2097969": {
+"name": "Client-side SQL injection (reflected DOM-based)",
+"severity": "HIGH"
+},
+"2097970": {
+"name": "Client-side SQL injection (stored DOM-based)",
+"severity": "HIGH"
+},
+"2097984": {
+"name": "WebSocket URL poisoning (DOM-based)",
+"severity": "HIGH"
+},
+"2097985": {
+"name": "WebSocket URL poisoning (reflected DOM-based)",
+"severity": "HIGH"
+},
+"2097986": {
+"name": "WebSocket URL poisoning (stored DOM-based)",
+"severity": "HIGH"
+},
+"2098000": {
+"name": "Local file path manipulation (DOM-based)",
+"severity": "HIGH"
+},
+"2098001": {
+"name": "Local file path manipulation (reflected DOM-based)",
+"severity": "HIGH"
+},
+"2098002": {
+"name": "Local file path manipulation (stored DOM-based)",
+"severity": "HIGH"
+},
+"2098016": {
+"name": "Client-side XPath injection (DOM-based)",
+"severity": "LOW"
+},
+"2098017": {
+"name": "Client-side XPath injection (reflected DOM-based)",
+"severity": "LOW"
+},
+"2098018": {
+"name": "Client-side XPath injection (stored DOM-based)",
+"severity": "LOW"
+},
+"2098032": {
+"name": "Client-side JSON injection (DOM-based)",
+"severity": "LOW"
+},
+"2098033": {
+"name": "Client-side JSON injection (reflected DOM-based)",
+"severity": "LOW"
+},
+"2098034": {
+"name": "Client-side JSON injection (stored DOM-based)",
+"severity": "LOW"
+},
+"2098176": {
+"name": "Flash cross-domain policy",
+"severity": "HIGH"
+},
+"2098432": {
+"name": "Silverlight cross-domain policy",
+"severity": "HIGH"
+},
+"2098435": {
+"name": "Content security policy: allowlisted script resources",
+"severity": "INFO"
+},
+"2098436": {
+"name": "Content security policy: allows untrusted script execution",
+"severity": "INFO"
+},
+"2098437": {
+"name": "Content security policy: allows untrusted style execution",
+"severity": "INFO"
+},
+"2098438": {
+"name": "Content security policy: malformed syntax",
+"severity": "INFO"
+},
+"2098439": {
+"name": "Content security policy: allows clickjacking",
+"severity": "INFO"
+},
+"2098440": {
+"name": "Content security policy: allows form hijacking",
+"severity": "INFO"
+},
+"2098441": {
+"name": "Content security policy: not enforced",
+"severity": "INFO"
+},
+"2098448": {
+"name": "GraphQL endpoint found",
+"severity": "INFO"
+},
+"2098449": {
+"name": "GraphQL endpoint discovered",
+"severity": "INFO"
+},
+"2098450": {
+"name": "GraphQL introspection enabled",
+"severity": "LOW"
+},
+"2098451": {
+"name": "GraphQL suggestions enabled",
+"severity": "LOW"
+},
+"2098452": {
+"name": "GraphQL content type not validated",
+"severity": "LOW"
+},
+"2098688": {
+"name": "Cross-origin resource sharing",
+"severity": "INFO"
+},
+"2098689": {
+"name": "Cross-origin resource sharing: arbitrary origin trusted",
+"severity": "HIGH"
+},
+"2098690": {
+"name": "Cross-origin resource sharing: unencrypted origin trusted",
+"severity": "LOW"
+},
+"2098691": {
+"name": "Cross-origin resource sharing: all subdomains trusted",
+"severity": "LOW"
+},
+"2098768": {
+"name": "Web cache deception",
+"severity": "MEDIUM"
+},
+"2098944": {
+"name": "Cross-site request forgery",
+"severity": "MEDIUM"
+},
+"2099200": {
+"name": "SMTP header injection",
+"severity": "MEDIUM"
+},
+"2099456": {
+"name": "JWT signature not verified",
+"severity": "HIGH"
+},
+"2099457": {
+"name": "JWT none algorithm supported",
+"severity": "HIGH"
+},
+"2099458": {
+"name": "JWT self-signed JWK header supported",
+"severity": "HIGH"
+},
+"2099459": {
+"name": "JWT weak HMAC secret",
+"severity": "HIGH"
+},
+"2099460": {
+"name": "JWT arbitrary jku header supported",
+"severity": "HIGH"
+},
+"2099461": {
+"name": "JWT arbitrary x5u header supported",
+"severity": "HIGH"
+},
+"3145984": {
+"name": "Cleartext submission of password",
+"severity": "HIGH"
+},
+"3146240": {
+"name": "External service interaction (DNS)",
+"severity": "INFO"
+},
+"3146256": {
+"name": "External service interaction (HTTP)",
+"severity": "HIGH"
+},
+"3146272": {
+"name": "External service interaction (SMTP)",
+"severity": "INFO"
+},
+"4194560": {
+"name": "Referer-dependent response",
+"severity": "INFO"
+},
+"4194576": {
+"name": "Spoofable client IP address",
+"severity": "INFO"
+},
+"4194592": {
+"name": "User agent-dependent response",
+"severity": "INFO"
+},
+"4194816": {
+"name": "Password returned in later response",
+"severity": "MEDIUM"
+},
+"4195072": {
+"name": "Password submitted using GET method",
+"severity": "LOW"
+},
+"4195328": {
+"name": "Password returned in URL query string",
+"severity": "LOW"
+},
+"4195456": {
+"name": "SQL statement in request parameter",
+"severity": "MEDIUM"
+},
+"4195584": {
+"name": "Cross-domain POST",
+"severity": "INFO"
+},
+"4195840": {
+"name": "ASP.NET ViewState without MAC enabled",
+"severity": "HIGH"
+},
+"4196096": {
+"name": "XML entity expansion",
+"severity": "MEDIUM"
+},
+"4196352": {
+"name": "Long redirection response",
+"severity": "INFO"
+},
+"4196608": {
+"name": "Serialized object in HTTP message",
+"severity": "HIGH"
+},
+"4196864": {
+"name": "Duplicate cookies set",
+"severity": "INFO"
+},
+"4197120": {
+"name": "Input returned in response (stored)",
+"severity": "INFO"
+},
+"4197376": {
+"name": "Input returned in response (reflected)",
+"severity": "INFO"
+},
+"4197632": {
+"name": "Suspicious input transformation (reflected)",
+"severity": "INFO"
+},
+"4197888": {
+"name": "Suspicious input transformation (stored)",
+"severity": "INFO"
+},
+"4198144": {
+"name": "Request URL override",
+"severity": "INFO"
+},
+"5243008": {
+"name": "Vulnerable JavaScript dependency",
+"severity": "LOW"
+},
+"5243136": {
+"name": "Open redirection (reflected)",
+"severity": "LOW"
+},
+"5243137": {
+"name": "Open redirection (stored)",
+"severity": "MEDIUM"
+},
+"5243152": {
+"name": "Open redirection (DOM-based)",
+"severity": "LOW"
+},
+"5243153": {
+"name": "Open redirection (reflected DOM-based)",
+"severity": "LOW"
+},
+"5243154": {
+"name": "Open redirection (stored DOM-based)",
+"severity": "MEDIUM"
+},
+"5243392": {
+"name": "TLS cookie without secure flag set",
+"severity": "MEDIUM"
+},
+"5243648": {
+"name": "Cookie scoped to parent domain",
+"severity": "LOW"
+},
+"5243904": {
+"name": "Cross-domain Referer leakage",
+"severity": "INFO"
+},
+"5244160": {
+"name": "Cross-domain script include",
+"severity": "INFO"
+},
+"5244416": {
+"name": "Cookie without HttpOnly flag set",
+"severity": "LOW"
+},
+"5244672": {
+"name": "Session token in URL",
+"severity": "MEDIUM"
+},
+"5244928": {
+"name": "Password field with autocomplete enabled",
+"severity": "LOW"
+},
+"5245184": {
+"name": "Password value set in cookie",
+"severity": "MEDIUM"
+},
+"5245312": {
+"name": "File upload functionality",
+"severity": "INFO"
+},
+"5245344": {
+"name": "Frameable response (potential Clickjacking)",
+"severity": "INFO"
+},
+"5245360": {
+"name": "Browser cross-site scripting filter disabled",
+"severity": "INFO"
+},
+"5245440": {
+"name": "HTTP TRACE method is enabled",
+"severity": "INFO"
+},
+"5245696": {
+"name": "Cookie manipulation (DOM-based)",
+"severity": "LOW"
+},
+"5245697": {
+"name": "Cookie manipulation (reflected DOM-based)",
+"severity": "LOW"
+},
+"5245698": {
+"name": "Cookie manipulation (stored DOM-based)",
+"severity": "LOW"
+},
+"5245952": {
+"name": "Ajax request header manipulation (DOM-based)",
+"severity": "LOW"
+},
+"5245953": {
+"name": "Ajax request header manipulation (reflected DOM-based)",
+"severity": "LOW"
+},
+"5245954": {
+"name": "Ajax request header manipulation (stored DOM-based)",
+"severity": "LOW"
+},
+"5246208": {
+"name": "Denial of service (DOM-based)",
+"severity": "INFO"
+},
+"5246209": {
+"name": "Denial of service (reflected DOM-based)",
+"severity": "INFO"
+},
+"5246210": {
+"name": "Denial of service (stored DOM-based)",
+"severity": "LOW"
+},
+"5246464": {
+"name": "HTML5 web message manipulation (DOM-based)",
+"severity": "INFO"
+},
+"5246465": {
+"name": "HTML5 web message manipulation (reflected DOM-based)",
+"severity": "INFO"
+},
+"5246466": {
+"name": "HTML5 web message manipulation (stored DOM-based)",
+"severity": "INFO"
+},
+"5246720": {
+"name": "HTML5 storage manipulation (DOM-based)",
+"severity": "INFO"
+},
+"5246721": {
+"name": "HTML5 storage manipulation (reflected DOM-based)",
+"severity": "INFO"
+},
+"5246722": {
+"name": "HTML5 storage manipulation (stored DOM-based)",
+"severity": "INFO"
+},
+"5246976": {
+"name": "Link manipulation (DOM-based)",
+"severity": "LOW"
+},
+"5246977": {
+"name": "Link manipulation (reflected DOM-based)",
+"severity": "LOW"
+},
+"5246978": {
+"name": "Link manipulation (stored DOM-based)",
+"severity": "LOW"
+},
+"5246979": {
+"name": "Link manipulation (reflected)",
+"severity": "INFO"
+},
+"5246980": {
+"name": "Link manipulation (stored)",
+"severity": "INFO"
+},
+"5247232": {
+"name": "Document domain manipulation (DOM-based)",
+"severity": "MEDIUM"
+},
+"5247233": {
+"name": "Document domain manipulation (reflected DOM-based)",
+"severity": "MEDIUM"
+},
+"5247234": {
+"name": "Document domain manipulation (stored DOM-based)",
+"severity": "MEDIUM"
+},
+"5247488": {
+"name": "DOM data manipulation (DOM-based)",
+"severity": "INFO"
+},
+"5247489": {
+"name": "DOM data manipulation (reflected DOM-based)",
+"severity": "INFO"
+},
+"5247490": {
+"name": "DOM data manipulation (stored DOM-based)",
+"severity": "INFO"
+},
+"5247744": {
+"name": "CSS injection (reflected)",
+"severity": "MEDIUM"
+},
+"5247745": {
+"name": "CSS injection (stored)",
+"severity": "MEDIUM"
+},
+"5248000": {
+"name": "Client-side HTTP parameter pollution (reflected)",
+"severity": "LOW"
+},
+"5248001": {
+"name": "Client-side HTTP parameter pollution (stored)",
+"severity": "LOW"
+},
+"5248256": {
+"name": "Form action hijacking (reflected)",
+"severity": "MEDIUM"
+},
+"5248257": {
+"name": "Form action hijacking (stored)",
+"severity": "MEDIUM"
+},
+"6291584": {
+"name": "Database connection string disclosed",
+"severity": "MEDIUM"
+},
+"6291632": {
+"name": "Source code disclosure",
+"severity": "LOW"
+},
+"6291672": {
+"name": "Backup file",
+"severity": "INFO"
+},
+"6291712": {
+"name": "Directory listing",
+"severity": "INFO"
+},
+"6291968": {
+"name": "Email addresses disclosed",
+"severity": "INFO"
+},
+"6292224": {
+"name": "Private IP addresses disclosed",
+"severity": "INFO"
+},
+"6292480": {
+"name": "Social security numbers disclosed",
+"severity": "INFO"
+},
+"6292736": {
+"name": "Credit card numbers disclosed",
+"severity": "INFO"
+},
+"6292816": {
+"name": "Private key disclosed",
+"severity": "INFO"
+},
+"6292992": {
+"name": "Robots.txt file",
+"severity": "INFO"
+},
+"6293248": {
+"name": "Json Web Key Set disclosed",
+"severity": "INFO"
+},
+"6293504": {
+"name": "JWT private key disclosed",
+"severity": "HIGH"
+},
+"6293760": {
+"name": "OpenAPI definition found (active scan check)",
+"severity": "INFO"
+},
+"6293761": {
+"name": "OpenAPI definition found (passive scan check)",
+"severity": "INFO"
+},
+"7340288": {
+"name": "Cacheable HTTPS response",
+"severity": "INFO"
+},
+"7340544": {
+"name": "Base64-encoded data in parameter",
+"severity": "INFO"
+},
+"8388864": {
+"name": "Multiple content types specified",
+"severity": "INFO"
+},
+"8389120": {
+"name": "HTML does not specify charset",
+"severity": "INFO"
+},
+"8389376": {
+"name": "HTML uses unrecognized charset",
+"severity": "INFO"
+},
+"8389632": {
+"name": "Content type incorrectly stated",
+"severity": "LOW"
+},
+"8389888": {
+"name": "Content type is not specified",
+"severity": "INFO"
+}
+}
