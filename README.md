@@ -39,6 +39,18 @@ second precision for times.
 New items can be added to the history with
 `burpeditor add project.burp --request-file req.txt [--response-file resp.txt] [--http]`.
 
+### Repeater tabs
+
+```bash
+burpeditor repeater list project.burp [--json]     # tabs, method, URL and number of sends
+burpeditor repeater show project.burp 3            # request in the editor and the response shown
+burpeditor repeater show project.burp 3 --send 2   # a send from the tab's < > history
+```
+
+Tabs are selected by name. HTTP/2 requests that Burp stores as a header list
+(for example after editing them in the Inspector) are shown rebuilt, with the
+request line and Host header taken from the pseudo-headers.
+
 ## How it works
 
 A `.burp` file is a memory-mapped object heap with a bump allocator. Objects

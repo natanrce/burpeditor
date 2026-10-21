@@ -293,6 +293,61 @@ def sitemap(project: BurpProject, host: Optional[str], urls: bool) -> None:
       click.echo("  " * depth + node.name + extra)
 
 
+@cli.group()
+def repeater() -> None:
+  """Inspect Repeater tabs."""
+
+
+@repeater.command("list")
+@project_argument()
+@click.option("--json", "as_json", is_flag=True, help="Output JSON lines.")
+def list_tabs(project: BurpProject, as_json: bool) -> None:
+  """List the Repeater tabs of the file."""
+  for tab in project.repeater.tabs():
+    if as_json:
+      click.echo(json.dumps(tab.to_dict()))
+      continue
+
+    group = f"[{tab.group}] " if tab.group else ""
+    click.echo(f"{shorten(group + tab.name, 24):<24} {tab.kind:<9} {tab.method or '-':<7} "
+               f"{len(tab.sends):>4} sends  {shorten(tab.url, 90)}")
+
+
+@repeater.command("show")
+@project_argument()
+@click.argument("tab")
+@click.option("--send", "send_number", type=int,
+              help="Show this send of the tab's history instead of the request in the editor.")
+@click.option("--request/--no-request", default=True, help="Print the request.")
+@click.option("--response/--no-response", default=True, help="Print the response.")
+def show_tab(project: BurpProject, tab: str, send_number: Optional[int], request: bool, response: bool) -> None:
+  """Print the request and response of a Repeater tab, by name.
+
+  Without --send, prints the request in the tab's editor and the response
+  the tab shows (its current send).
+  """
+  try:
+    found = project.repeater.get(tab)
+  except KeyError as e:
+    raise click.ClickException(e.args[0])
+
+  if send_number is None:
+    shown_request, shown_response = found.request, found.response
+  elif 1 <= send_number <= len(found.sends):
+    send = found.sends[send_number - 1]
+    shown_request, shown_response = send.request, send.response
+  else:
+    raise click.ClickException(f"Tab {tab!r} has {len(found.sends)} sends")
+
+  if request:
+    echo_bytes(shown_request)
+
+  if request and response and shown_response:
+    click.echo()
+
+  if response:
+    echo_bytes(shown_response)
+
+
 if __name__ == "__main__":
   cli()
-
