@@ -45,8 +45,9 @@ _ITEM_LAYOUT = [
   (19, 8), (20, 8), (21, 8), (22, 8), (23, 8), (24, 1), (25, 1), (26, 1), (27, 8),
   (28, 8), (29, 8), (30, 8),
 ]
-_REQUEST_SLOTS = (17, 16, 15)
-_RESPONSE_SLOTS = (20, 19, 18)
+# (bytes, HTTP/2 header list) of the final, edited and original messages.
+_REQUEST_SLOTS = ((17, 23), (16, 22), (15, 21))
+_RESPONSE_SLOTS = ((20, None), (19, None), (18, None))
 
 
 @dataclass
@@ -109,10 +110,17 @@ class HTTPHistory:
         return rec
     raise KeyError(f"history item #{number} not found")
 
-  def _message(self, rec: Record, slots: tuple[int, ...]) -> Optional[bytes]:
-    for slot in slots:
-      if rec.ref(slot):
-        return rec.array(slot)
+  def _message(self, rec: Record, slots: tuple[tuple[int, Optional[int]], ...]) -> Optional[bytes]:
+    """The first message present; requests stored as an HTTP/2 header list are reassembled."""
+    for data, header_list in slots:
+      headers = self._store.headers(rec.ref(header_list)) if header_list is not None else []
+
+      if headers:
+        return http.assemble_http2_request(headers, rec.array(data) or b"")
+
+      if rec.ref(data):
+        return rec.array(data)
+
     return None
 
   def _item(self, rec: Record) -> HistoryItem:

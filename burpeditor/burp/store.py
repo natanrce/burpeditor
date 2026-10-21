@@ -360,6 +360,10 @@ class Store:
       return []
     return [(key, value) for _, key, value in self.set_entries(rec.ref(0))]
 
+  def headers(self, ptr: int) -> list[tuple[bytes, bytes]]:
+    """(name, value) pairs of a header list (1 name, 2 value), used for HTTP/2 messages."""
+    return [(rec.array(1) or b"", rec.array(2) or b"") for rec in self.iter_records(self.list_items(ptr))]
+
   def iter_records(self, ptrs: Iterable[int]) -> Iterator[Record]:
     for ptr in ptrs:
       rec = self.record(ptr)
