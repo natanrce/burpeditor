@@ -234,19 +234,7 @@ class HTTPHistory:
     if text is None:
       raise ValueError(f"history item #{number} has no comment slot")
 
-    text.set_u64(2, self._text_nodes(comment))
-
-  def _text_nodes(self, text: Optional[str]) -> int:
-    """Linked char-array nodes of at most 100 chars: 1 chars, 2 length, 3 next."""
-    node = 0
-
-    for chunk in reversed([text[i:i + 100] for i in range(0, len(text or ""), 100)]):
-      ptr = self._store.new_record([Field(1, 8), Field(2, 4, len(chunk)), Field(3, 8, node)])
-      chars = chunk.encode("utf-16-be")
-      self._store.write_u64(ptr + 13, self._store.new_array(chars, len(chars) // 2))
-      node = ptr
-
-    return node
+    text.set_u64(2, self._store.new_text_nodes(comment))
 
   def append(self, request: bytes, response: Optional[bytes] = None, secure: bool = True,
              timestamp: Optional[datetime] = None, listener_port: int = DEFAULT_LISTENER_PORT,
@@ -291,8 +279,7 @@ class HTTPHistory:
       self._apply_response(rec, response)
 
     # Every item has a comment bound to the global text pool, even if empty.
-    pool = self._store.record(self._store.store_root).ref(0)
-    rec.set_u64(27, self._store.new_record([Field(1, 8, pool), Field(2, 8, self._text_nodes(comment))]))
+    rec.set_u64(27, self._store.new_text(comment))
 
     self._store.list_append(container.ref(ALL_ITEMS), ptr)
     # Without this Burp hides the new item until the display filter re-runs.

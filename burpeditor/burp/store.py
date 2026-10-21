@@ -441,6 +441,23 @@ class Store:
     self.write_u64(ptr + 10, self.new_array(chars, len(chars) // 2))
     return ptr
 
+  def new_text_nodes(self, text: Optional[str]) -> int:
+    """Linked char-array nodes of a pooled text, at most 100 chars each: 1 chars, 2 length, 3 next."""
+    node = 0
+
+    for chunk in reversed([text[i:i + 100] for i in range(0, len(text or ""), 100)]):
+      ptr = self.new_record([Field(1, 8), Field(2, 4, len(chunk)), Field(3, 8, node)])
+      chars = chunk.encode("utf-16-be")
+      self.write_u64(ptr + 13, self.new_array(chars, len(chars) // 2))
+      node = ptr
+
+    return node
+
+  def new_text(self, text: Optional[str]) -> int:
+    """A text bound to the global text pool (see `text`), even if empty."""
+    pool = self.record(self.store_root).ref(0)
+    return self.new_record([Field(1, 8, pool), Field(2, 8, self.new_text_nodes(text))])
+
   def new_list(self, ptrs: Optional[list[int]] = None, capacity: int = 10) -> int:
     ptrs = ptrs or []
     ptr = self.new_record([Field(0, 4, len(ptrs)), Field(1, 8)])
