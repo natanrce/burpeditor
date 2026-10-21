@@ -95,6 +95,18 @@ def show(project: BurpProject, number: int, request: bool, response: bool) -> No
     echo_bytes(item.response)
 
 
+def open_writable(project: BurpProject, output: Optional[str]) -> BurpProject:
+  """Reopen `project` for writing, or a copy of it at `output`."""
+  path = project.path
+  project.close()
+
+  if output and os.path.abspath(output) != os.path.abspath(path):
+    shutil.copyfile(path, output)
+    return BurpProject.open(output, writable=True, discard_on_error=True)
+
+  return BurpProject.open(path, writable=True)
+
+
 def new_message(current: bytes, message_file, use_editor: bool) -> Optional[bytes]:
   """The replacement message from a file or written in $EDITOR, if it changed."""
   if message_file is not None:
@@ -153,14 +165,7 @@ def edit(project: BurpProject, number: int, edit_response: bool, request_file, r
     except ValueError as e:
       raise click.ClickException(str(e))
 
-  path = project.path
-  project.close()
-
-  if output and os.path.abspath(output) != os.path.abspath(path):
-    shutil.copyfile(path, output)
-    target = BurpProject.open(output, writable=True, discard_on_error=True)
-  else:
-    target = BurpProject.open(path, writable=True)
+  target = open_writable(project, output)
 
   with target:
     try:
@@ -195,14 +200,7 @@ def add(project: BurpProject, request_file, response_file, plain: bool, output: 
   except ValueError as e:
     raise click.ClickException(str(e))
 
-  path = project.path
-  project.close()
-
-  if output and os.path.abspath(output) != os.path.abspath(path):
-    shutil.copyfile(path, output)
-    target = BurpProject.open(output, writable=True, discard_on_error=True)
-  else:
-    target = BurpProject.open(path, writable=True)
+  target = open_writable(project, output)
 
   with target:
     try:
@@ -293,6 +291,111 @@ def sitemap(project: BurpProject, host: Optional[str], urls: bool) -> None:
       click.echo("  " * depth + node.name + extra)
 
 
+@cli.group()
+def repeater() -> None:
+  """Inspect and create Repeater tabs."""
+
+
+@repeater.command("list")
+@project_argument()
+@click.option("--json", "as_json", is_flag=True, help="Output JSON lines.")
+def list_tabs(project: BurpProject, as_json: bool) -> None:
+  """List the Repeater tabs of the file."""
+  for tab in project.repeater.tabs():
+    if as_json:
+      click.echo(json.dumps(tab.to_dict()))
+      continue
+
+    group = f"[{tab.group}] " if tab.group else ""
+    click.echo(f"{shorten(group + tab.name, 24):<24} {tab.kind:<9} {tab.method or '-':<7} "
+               f"{len(tab.sends):>4} sends  {shorten(tab.url, 90)}")
+
+
+@repeater.command("show")
+@project_argument()
+@click.argument("tab")
+@click.option("--send", "send_number", type=int,
+              help="Show this send of the tab's history instead of the request in the editor.")
+@click.option("--request/--no-request", default=True, help="Print the request.")
+@click.option("--response/--no-response", default=True, help="Print the response.")
+def show_tab(project: BurpProject, tab: str, send_number: Optional[int], request: bool, response: bool) -> None:
+  """Print the request and response of a Repeater tab, by name.
+
+  Without --send, prints the request in the tab's editor and the response
+  the tab shows (its current send).
+  """
+  try:
+    found = project.repeater.get(tab)
+  except KeyError as e:
+    raise click.ClickException(e.args[0])
+
+  if send_number is None:
+    shown_request, shown_response = found.request, found.response
+  elif 1 <= send_number <= len(found.sends):
+    send = found.sends[send_number - 1]
+    shown_request, shown_response = send.request, send.response
+  else:
+    raise click.ClickException(f"Tab {tab!r} has {len(found.sends)} sends")
+
+  if request:
+    echo_bytes(shown_request)
+
+  if request and response and shown_response:
+    click.echo()
+
+  if response:
+    echo_bytes(shown_response)
+
+
+@repeater.command("add")
+@project_argument()
+@click.option("--request-file", type=click.File("rb"), help="Raw request ('-' for stdin).")
+@click.option("--from-history", "history_number", type=int, help="Use the request of this history item.")
+@click.option("--name", help="Tab name (defaults to the next number, like Burp).")
+@click.option("--notes", help="Tab notes.")
+@click.option("--http", "plain", is_flag=True, help="The request file targets plain HTTP (default HTTPS).")
+@click.option("-o", "--output", type=BurpFile(exists=False), help="Save the result to a new project file instead of overwriting PROJECT.")
+def add_tab(project: BurpProject, request_file, history_number: Optional[int], name: Optional[str],
+            notes: Optional[str], plain: bool, output: Optional[str]) -> None:
+  """Add a Repeater tab with a request in its editor.
+
+  The request comes from --request-file or a history item (--from-history).
+
+  PROJECT is overwritten (close it in Burp first) unless -o is given.
+  """
+  if (request_file is None) == (history_number is None):
+    raise click.ClickException("Give exactly one of --request-file and --from-history.")
+
+  service = None
+
+  if request_file is not None:
+    request = request_file.read()
+  else:
+    try:
+      item = project.http_history.get(history_number)
+    except KeyError as e:
+      raise click.ClickException(e.args[0])
+
+    if not item.request:
+      raise click.ClickException(f"History item #{history_number} has no request")
+
+    request, service = item.request, item.service
+
+  try:
+    http.validate_request(request)
+  except ValueError as e:
+    raise click.ClickException(str(e))
+
+  target = open_writable(project, output)
+
+  with target:
+    try:
+      name = target.repeater.add(request, name=name, service=service, secure=not plain, notes=notes)
+    except ValueError as e:
+      raise click.ClickException(str(e))
+
+  click.echo(f"Added Repeater tab {name!r} to {target.path}")
+
+
 if __name__ == "__main__":
   cli()
-

@@ -360,6 +360,10 @@ class Store:
       return []
     return [(key, value) for _, key, value in self.set_entries(rec.ref(0))]
 
+  def headers(self, ptr: int) -> list[tuple[bytes, bytes]]:
+    """(name, value) pairs of a header list (1 name, 2 value), used for HTTP/2 messages."""
+    return [(rec.array(1) or b"", rec.array(2) or b"") for rec in self.iter_records(self.list_items(ptr))]
+
   def iter_records(self, ptrs: Iterable[int]) -> Iterator[Record]:
     for ptr in ptrs:
       rec = self.record(ptr)
@@ -436,6 +440,39 @@ class Store:
     chars = value.encode("utf-16-be")
     self.write_u64(ptr + 10, self.new_array(chars, len(chars) // 2))
     return ptr
+
+  def new_string_n(self, value: str, chunk_size: int = 32) -> int:
+    """A chunked string (see `string_n`), with Java's String.hashCode and zero-padded chunks."""
+    units = value.encode("utf-16-be")
+    length = len(units) // 2
+    hash_code = 0
+
+    for i in range(0, len(units), 2):
+      hash_code = (31 * hash_code + int.from_bytes(units[i:i + 2], "big")) & 0xFFFFFFFF
+
+    step = 2 * chunk_size
+    chunks = [self.new_array(units[i:i + step].ljust(step, b"\x00"), chunk_size)
+              for i in range(0, len(units), step)]
+    ptr = self.new_record([Field(0, 4, length), Field(1, 4, hash_code), Field(2, 4, chunk_size), Field(3, 8)])
+    self.write_u64(ptr + 28, self.new_list(chunks))
+    return ptr
+
+  def new_text_nodes(self, text: Optional[str]) -> int:
+    """Linked char-array nodes of a pooled text, at most 100 chars each: 1 chars, 2 length, 3 next."""
+    node = 0
+
+    for chunk in reversed([text[i:i + 100] for i in range(0, len(text or ""), 100)]):
+      ptr = self.new_record([Field(1, 8), Field(2, 4, len(chunk)), Field(3, 8, node)])
+      chars = chunk.encode("utf-16-be")
+      self.write_u64(ptr + 13, self.new_array(chars, len(chars) // 2))
+      node = ptr
+
+    return node
+
+  def new_text(self, text: Optional[str]) -> int:
+    """A text bound to the global text pool (see `text`), even if empty."""
+    pool = self.record(self.store_root).ref(0)
+    return self.new_record([Field(1, 8, pool), Field(2, 8, self.new_text_nodes(text))])
 
   def new_list(self, ptrs: Optional[list[int]] = None, capacity: int = 10) -> int:
     ptrs = ptrs or []

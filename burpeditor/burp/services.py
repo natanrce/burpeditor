@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+from burpeditor.burp import http
 from burpeditor.burp.store import Field, Record, Store
 
 # Application root field holding the list of every service in the project.
@@ -57,3 +58,35 @@ def intern_service(store: Store, root: Record, service: Service) -> int:
   store.list_append(root.ref(ROOT_SERVICES), ptr)
 
   return ptr
+
+
+def request_service(raw: bytes, current: Optional[Service] = None,
+                    secure: Optional[bool] = None) -> tuple[str, Service]:
+  """The origin-form target of a request and the service it is sent to.
+
+  The service comes from an absolute request target or the Host header,
+  falling back to `current`. `secure` switches the protocol of a service
+  taken from the Host header (and its port, if it is the default one).
+  """
+  line = http.request_line(raw)
+  target, absolute = http.origin_form(line.target)
+
+  if absolute:
+    return target, Service(*absolute)
+
+  host = http.parse(raw).header("Host")
+
+  if not host:
+    if current is None:
+      raise ValueError("request has no Host header")
+    return target, current
+
+  host_secure = current.secure if current else True
+  service = Service(*http.split_host(host, host_secure), host_secure)
+
+  if secure is not None and secure != service.secure:
+    default = 443 if service.secure else 80
+    port = (443 if secure else 80) if service.port == default else service.port
+    service = Service(service.host, port, secure)
+
+  return target, service

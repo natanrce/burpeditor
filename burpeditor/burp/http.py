@@ -80,6 +80,22 @@ def validate_request(raw: bytes) -> None:
   request_line(raw)
 
 
+def assemble_http2_request(headers: list[tuple[bytes, bytes]], body: bytes) -> bytes:
+  """Build the request Burp shows for an HTTP/2 message stored as a header list plus body.
+
+  The pseudo-headers become the request line and the Host header.
+  """
+  pseudo = {name: value for name, value in headers if name.startswith(b":")}
+  start = pseudo.get(b":method", b"GET") + b" " + pseudo.get(b":path", b"/") + b" HTTP/2"
+  lines = [start]
+
+  if b":authority" in pseudo:
+    lines.append(b"Host: " + pseudo[b":authority"])
+
+  lines += [name + b": " + value for name, value in headers if not name.startswith(b":")]
+  return b"\r\n".join(lines) + b"\r\n\r\n" + body
+
+
 def split_host(value: str, secure: bool) -> tuple[str, int]:
   default = 443 if secure else 80
   if value.startswith("["):

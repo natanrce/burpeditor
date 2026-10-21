@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from typing import Iterator, Optional
 
 from burpeditor.burp import http
-from burpeditor.burp.services import Service, intern_service
+from burpeditor.burp.services import Service, intern_service, request_service
 from burpeditor.burp.store import Field, Record, Store
 
 ROOT_HISTORY = 1
@@ -45,8 +45,9 @@ _ITEM_LAYOUT = [
   (19, 8), (20, 8), (21, 8), (22, 8), (23, 8), (24, 1), (25, 1), (26, 1), (27, 8),
   (28, 8), (29, 8), (30, 8),
 ]
-_REQUEST_SLOTS = (17, 16, 15)
-_RESPONSE_SLOTS = (20, 19, 18)
+# (bytes, HTTP/2 header list) of the final, edited and original messages.
+_REQUEST_SLOTS = ((17, 23), (16, 22), (15, 21))
+_RESPONSE_SLOTS = ((20, None), (19, None), (18, None))
 
 
 @dataclass
@@ -109,10 +110,17 @@ class HTTPHistory:
         return rec
     raise KeyError(f"history item #{number} not found")
 
-  def _message(self, rec: Record, slots: tuple[int, ...]) -> Optional[bytes]:
-    for slot in slots:
-      if rec.ref(slot):
-        return rec.array(slot)
+  def _message(self, rec: Record, slots: tuple[tuple[int, Optional[int]], ...]) -> Optional[bytes]:
+    """The first message present; requests stored as an HTTP/2 header list are reassembled."""
+    for data, header_list in slots:
+      headers = self._store.headers(rec.ref(header_list)) if header_list is not None else []
+
+      if headers:
+        return http.assemble_http2_request(headers, rec.array(data) or b"")
+
+      if rec.ref(data):
+        return rec.array(data)
+
     return None
 
   def _item(self, rec: Record) -> HistoryItem:
@@ -148,35 +156,12 @@ class HTTPHistory:
   def _set_string(self, rec: Record, field_id: int, value: Optional[str]) -> None:
     rec.set_u64(field_id, self._store.new_string(value) if value is not None else 0)
 
-  def _target_service(self, raw: bytes, current: Optional[Service]) -> tuple[str, Service]:
-    line = http.request_line(raw)
-    target, absolute = http.origin_form(line.target)
-
-    if absolute:
-      return target, Service(*absolute)
-
-    secure = current.secure if current else True
-    host = http.parse(raw).header("Host")
-
-    if not host:
-      if current is None:
-        raise ValueError("request has no Host header")
-      return target, current
-
-    return target, Service(*http.split_host(host, secure), secure)
-
   def _apply_request(self, rec: Record, raw: bytes, current: Optional[Service], secure: Optional[bool],
                      service: Optional[Service] = None) -> None:
-    explicit = service is not None
-    if explicit:
+    if service is not None:
       target, _ = http.origin_form(http.request_line(raw).target)
     else:
-      target, service = self._target_service(raw, current)
-
-    if not explicit and secure is not None and secure != service.secure:
-      default = 443 if service.secure else 80
-      port = (443 if secure else 80) if service.port == default else service.port
-      service = Service(service.host, port, secure)
+      target, service = request_service(raw, current, secure)
 
     line = http.request_line(raw)
     self._set_string(rec, 1, line.method)
@@ -209,7 +194,7 @@ class HTTPHistory:
     current = Service.from_record(rec.record(2).record(0)) if rec.ref(2) else None
 
     # Fail on a request without a known target before writing anything.
-    self._target_service(raw, current)
+    request_service(raw, current)
     protocol = http.protocol_id(raw)
 
     if keep_original:
@@ -249,19 +234,7 @@ class HTTPHistory:
     if text is None:
       raise ValueError(f"history item #{number} has no comment slot")
 
-    text.set_u64(2, self._text_nodes(comment))
-
-  def _text_nodes(self, text: Optional[str]) -> int:
-    """Linked char-array nodes of at most 100 chars: 1 chars, 2 length, 3 next."""
-    node = 0
-
-    for chunk in reversed([text[i:i + 100] for i in range(0, len(text or ""), 100)]):
-      ptr = self._store.new_record([Field(1, 8), Field(2, 4, len(chunk)), Field(3, 8, node)])
-      chars = chunk.encode("utf-16-be")
-      self._store.write_u64(ptr + 13, self._store.new_array(chars, len(chars) // 2))
-      node = ptr
-
-    return node
+    text.set_u64(2, self._store.new_text_nodes(comment))
 
   def append(self, request: bytes, response: Optional[bytes] = None, secure: bool = True,
              timestamp: Optional[datetime] = None, listener_port: int = DEFAULT_LISTENER_PORT,
@@ -277,7 +250,7 @@ class HTTPHistory:
 
     if service is None:
       # Fail on a request without a known target before writing anything.
-      self._target_service(request, None)
+      request_service(request)
 
     if response is not None:
       response = http.normalize(response, is_request=False)
@@ -306,8 +279,7 @@ class HTTPHistory:
       self._apply_response(rec, response)
 
     # Every item has a comment bound to the global text pool, even if empty.
-    pool = self._store.record(self._store.store_root).ref(0)
-    rec.set_u64(27, self._store.new_record([Field(1, 8, pool), Field(2, 8, self._text_nodes(comment))]))
+    rec.set_u64(27, self._store.new_text(comment))
 
     self._store.list_append(container.ref(ALL_ITEMS), ptr)
     # Without this Burp hides the new item until the display filter re-runs.

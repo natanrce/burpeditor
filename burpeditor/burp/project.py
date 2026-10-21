@@ -6,6 +6,7 @@ from importlib import resources
 from typing import Optional
 
 from burpeditor.burp.history import HTTPHistory
+from burpeditor.burp.repeater import Repeater
 from burpeditor.burp.scanner import Scanner
 from burpeditor.burp.sitemap import SiteMap
 from burpeditor.burp.store import (ALLOC_END_OFFSET, CLEAN_TAIL, FORMAT_VERSION, MAGIC_BYTES,
@@ -163,4 +164,8 @@ class BurpProject:
   @property
   def sitemap(self) -> SiteMap:
     return SiteMap(self.store, self.root)
+
+  @property
+  def repeater(self) -> Repeater:
+    return Repeater(self.store, self.root)
 
