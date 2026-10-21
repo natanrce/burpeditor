@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from typing import Iterator, Optional
 
 from burpeditor.burp import http
-from burpeditor.burp.services import Service, intern_service
+from burpeditor.burp.services import Service, intern_service, request_service
 from burpeditor.burp.store import Field, Record, Store
 
 ROOT_HISTORY = 1
@@ -156,35 +156,12 @@ class HTTPHistory:
   def _set_string(self, rec: Record, field_id: int, value: Optional[str]) -> None:
     rec.set_u64(field_id, self._store.new_string(value) if value is not None else 0)
 
-  def _target_service(self, raw: bytes, current: Optional[Service]) -> tuple[str, Service]:
-    line = http.request_line(raw)
-    target, absolute = http.origin_form(line.target)
-
-    if absolute:
-      return target, Service(*absolute)
-
-    secure = current.secure if current else True
-    host = http.parse(raw).header("Host")
-
-    if not host:
-      if current is None:
-        raise ValueError("request has no Host header")
-      return target, current
-
-    return target, Service(*http.split_host(host, secure), secure)
-
   def _apply_request(self, rec: Record, raw: bytes, current: Optional[Service], secure: Optional[bool],
                      service: Optional[Service] = None) -> None:
-    explicit = service is not None
-    if explicit:
+    if service is not None:
       target, _ = http.origin_form(http.request_line(raw).target)
     else:
-      target, service = self._target_service(raw, current)
-
-    if not explicit and secure is not None and secure != service.secure:
-      default = 443 if service.secure else 80
-      port = (443 if secure else 80) if service.port == default else service.port
-      service = Service(service.host, port, secure)
+      target, service = request_service(raw, current, secure)
 
     line = http.request_line(raw)
     self._set_string(rec, 1, line.method)
@@ -217,7 +194,7 @@ class HTTPHistory:
     current = Service.from_record(rec.record(2).record(0)) if rec.ref(2) else None
 
     # Fail on a request without a known target before writing anything.
-    self._target_service(raw, current)
+    request_service(raw, current)
     protocol = http.protocol_id(raw)
 
     if keep_original:
@@ -285,7 +262,7 @@ class HTTPHistory:
 
     if service is None:
       # Fail on a request without a known target before writing anything.
-      self._target_service(request, None)
+      request_service(request)
 
     if response is not None:
       response = http.normalize(response, is_request=False)
