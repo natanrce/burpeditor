@@ -95,6 +95,18 @@ def show(project: BurpProject, number: int, request: bool, response: bool) -> No
     echo_bytes(item.response)
 
 
+def open_writable(project: BurpProject, output: Optional[str]) -> BurpProject:
+  """Reopen `project` for writing, or a copy of it at `output`."""
+  path = project.path
+  project.close()
+
+  if output and os.path.abspath(output) != os.path.abspath(path):
+    shutil.copyfile(path, output)
+    return BurpProject.open(output, writable=True, discard_on_error=True)
+
+  return BurpProject.open(path, writable=True)
+
+
 def new_message(current: bytes, message_file, use_editor: bool) -> Optional[bytes]:
   """The replacement message from a file or written in $EDITOR, if it changed."""
   if message_file is not None:
@@ -153,14 +165,7 @@ def edit(project: BurpProject, number: int, edit_response: bool, request_file, r
     except ValueError as e:
       raise click.ClickException(str(e))
 
-  path = project.path
-  project.close()
-
-  if output and os.path.abspath(output) != os.path.abspath(path):
-    shutil.copyfile(path, output)
-    target = BurpProject.open(output, writable=True, discard_on_error=True)
-  else:
-    target = BurpProject.open(path, writable=True)
+  target = open_writable(project, output)
 
   with target:
     try:
@@ -195,14 +200,7 @@ def add(project: BurpProject, request_file, response_file, plain: bool, output: 
   except ValueError as e:
     raise click.ClickException(str(e))
 
-  path = project.path
-  project.close()
-
-  if output and os.path.abspath(output) != os.path.abspath(path):
-    shutil.copyfile(path, output)
-    target = BurpProject.open(output, writable=True, discard_on_error=True)
-  else:
-    target = BurpProject.open(path, writable=True)
+  target = open_writable(project, output)
 
   with target:
     try:
