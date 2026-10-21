@@ -293,7 +293,7 @@ def sitemap(project: BurpProject, host: Optional[str], urls: bool) -> None:
 
 @cli.group()
 def repeater() -> None:
-  """Inspect Repeater tabs."""
+  """Inspect and create Repeater tabs."""
 
 
 @repeater.command("list")
@@ -345,6 +345,56 @@ def show_tab(project: BurpProject, tab: str, send_number: Optional[int], request
 
   if response:
     echo_bytes(shown_response)
+
+
+@repeater.command("add")
+@project_argument()
+@click.option("--request-file", type=click.File("rb"), help="Raw request ('-' for stdin).")
+@click.option("--from-history", "history_number", type=int, help="Use the request of this history item.")
+@click.option("--name", help="Tab name (defaults to the next number, like Burp).")
+@click.option("--notes", help="Tab notes.")
+@click.option("--http", "plain", is_flag=True, help="The request file targets plain HTTP (default HTTPS).")
+@click.option("-o", "--output", type=BurpFile(exists=False), help="Save the result to a new project file instead of overwriting PROJECT.")
+def add_tab(project: BurpProject, request_file, history_number: Optional[int], name: Optional[str],
+            notes: Optional[str], plain: bool, output: Optional[str]) -> None:
+  """Add a Repeater tab with a request in its editor.
+
+  The request comes from --request-file or a history item (--from-history).
+
+  PROJECT is overwritten (close it in Burp first) unless -o is given.
+  """
+  if (request_file is None) == (history_number is None):
+    raise click.ClickException("Give exactly one of --request-file and --from-history.")
+
+  service = None
+
+  if request_file is not None:
+    request = request_file.read()
+  else:
+    try:
+      item = project.http_history.get(history_number)
+    except KeyError as e:
+      raise click.ClickException(e.args[0])
+
+    if not item.request:
+      raise click.ClickException(f"History item #{history_number} has no request")
+
+    request, service = item.request, item.service
+
+  try:
+    http.validate_request(request)
+  except ValueError as e:
+    raise click.ClickException(str(e))
+
+  target = open_writable(project, output)
+
+  with target:
+    try:
+      name = target.repeater.add(request, name=name, service=service, secure=not plain, notes=notes)
+    except ValueError as e:
+      raise click.ClickException(str(e))
+
+  click.echo(f"Added Repeater tab {name!r} to {target.path}")
 
 
 if __name__ == "__main__":

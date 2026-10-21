@@ -45,11 +45,19 @@ New items can be added to the history with
 burpeditor repeater list project.burp [--json]     # tabs, method, URL and number of sends
 burpeditor repeater show project.burp 3            # request in the editor and the response shown
 burpeditor repeater show project.burp 3 --send 2   # a send from the tab's < > history
+
+# New tab with a request in its editor (from a file or a history item)
+burpeditor repeater add project.burp --request-file req.txt [--name login] [--notes "..."] [--http]
+burpeditor repeater add project.burp --from-history 12 [-o copy.burp]
 ```
 
 Tabs are selected by name. HTTP/2 requests that Burp stores as a header list
 (for example after editing them in the Inspector) are shown rebuilt, with the
 request line and Host header taken from the pseudo-headers.
+
+`repeater add` works like Burp's "Send to Repeater": the new tab has the
+request in its editor and no sends yet, and is numbered like Burp numbers
+tabs unless `--name` is given. Tab groups are not supported yet.
 
 ## How it works
 
